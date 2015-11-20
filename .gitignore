@@ -1,0 +1,7 @@
+# Created by .ignore support plugin (hsz.mobi)
+/.idea
+/target
+/src/main/webapp/resources/tmp
+jmeter.log
+*.iml
+/logs
