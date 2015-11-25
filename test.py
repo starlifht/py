@@ -32,4 +32,5 @@ hh = '<ul class="cont_l_d_ul"><li><span class="d_bt">' \
      '</li>' \
      '</ul>'
 soup=BeautifulSoup(hh)
-print(str(soup.select('.cont_l_d_ul')[0].a['href']))
+s = '2015年 史蒂夫.乔布斯:机器人生 [是不是出了好几部乔布斯的电影了]'
+print(s.replace('2015', ''))

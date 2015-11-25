@@ -1,14 +1,17 @@
 #!/usr/bin/env python
-# -*-coding:UTF-8-*-
+# encoding: utf-8
 
 
 __author__ = 'STAR'
 
-import urllib2
 import re
 from bs4 import BeautifulSoup
 import MySQLdb
 import sys
+import time
+import tools
+import urllib2
+
 
 reload(sys)
 sys.setdefaultencoding('utf8')
@@ -23,30 +26,30 @@ def getHtml(url):
     return htmltest
 
 
-try:
-    conn = MySQLdb.connect(host='172.27.2.26', user='star', passwd='asd123', db='movie', port=3306, charset="utf8")
-    cur = conn.cursor()
-    mainHtml = getHtml('http://gaoqing.la/')
-    # print(mainHtml)
+def getGaoQing(name):
+    try:
+        conn = MySQLdb.connect(host='172.27.2.26', user='star', passwd='asd123', db='movie', port=3306, charset="utf8")
+        cur = conn.cursor()
+        mainHtml = getHtml('http://gaoqing.la/')
+        an = re.findall(r'href="(http://gaoqing\.la/.*?html)"', mainHtml)
+        s = set(an)
+        for i in s:
+            print i
+            html = getHtml(i)
+            soup = BeautifulSoup(html)
+            title = str(soup.title.string).replace('中国高清网', '')
+            # print(title.split(' ')[1])
+            # print(tools.getRating(str(title.split(' ')[1])))
+            rating = tools.getRating(title.split(' ')[1])
+            post_content = (title, repr(soup.find('div', id="post_content")), i, rating)
+            cur.execute("replace into film(label,title,content,origin,rating) VALUES('gaoqing',%s,%s,%s,%s)", post_content)
+            time.sleep(5)
 
-    an = re.findall(r'href="(http://gaoqing\.la/.*?html)"', mainHtml)
-    s = set(an)
-    for i in s:
-        html = getHtml(i)
+    except MySQLdb.Error, e:
+        print "Mysql Error %d: %s" % (e.args[0], e.args[1])
+    finally:
+        cur.close()
+        conn.commit()
+        conn.close()
+        print('END')
 
-        soup = BeautifulSoup(html)
-
-        post_content = (str(soup.title.string).replace('中国高清网', ''), repr(soup.find('div', id="post_content")), i)
-        # post_content = (str('不是wre啊'),)
-        # print(type(str(soup.find('div', id="post_content"))))
-        # print(type(post_content))
-        # post_content = (u'sdfsdfsdf',)
-        # #test=(u'sdf6sd',u'hhhhh')
-        cur.execute("replace into film(label,title,content,origin) VALUES('gaoqing',%s,%s,%s)", post_content)
-
-except MySQLdb.Error, e:
-    print "Mysql Error %d: %s" % (e.args[0], e.args[1])
-finally:
-    cur.close()
-    conn.commit()
-    conn.close()
