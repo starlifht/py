@@ -5,32 +5,10 @@
 
 __author__ = 'STAR'
 
-import urllib2
-import re
-from bs4 import BeautifulSoup
-import MySQLdb
-import sys
-
-reload(sys)
-sys.setdefaultencoding('utf8')
-
-domain = 'http://www.xixihd.com'
-
-
-def getHtml(url):
-    r = urllib2.Request(url)
-    page = urllib2.urlopen(r, timeout=5)
-    html = page.read()
-    return html
-
-
-hh = '<ul class="cont_l_d_ul"><li><span class="d_bt">' \
-     '<a href="/?mod=content&id=31000">最好的敌人 Best.of.Enemies.2015.DOCU.720p.BluRay.x264-PSYCHD-xixiHD</a></span>' \
-     '<span class="d_form">720P</span>' \
-     '<span class="d_size">4.39GB</span>' \
-     '<span class="d_size">abcnnt</span>' \
-     '</li>' \
-     '</ul>'
-soup=BeautifulSoup(hh)
-s = '2015年 史蒂夫.乔布斯:机器人生 [是不是出了好几部乔布斯的电影了]'
-print(s.replace('2015', ''))
+import hashlib
+import time
+ISOTIMEFORMAT = '%Y-%m-%d %X'
+print(time.strftime(ISOTIMEFORMAT, time.localtime()))
+m2 = hashlib.md5()
+m2.update("tangfuqiangs")
+print m2.hexdigest()

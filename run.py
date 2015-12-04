@@ -18,6 +18,6 @@ sys.setdefaultencoding('utf-8')
 p = Pool()
 
 p.apply_async(xixi.getXiXi, args=('a',))
-#p.apply_async(gaoqing.getGaoQing, args=('b',))
+p.apply_async(gaoqing.getGaoQing, args=('b',))
 p.close()
 p.join()

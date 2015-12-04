@@ -21,7 +21,7 @@ def getHtml(url):
     user_agent = 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:42.0) Gecko/20100101 Firefox/42.0'
     r = urllib2.Request(url)
     r.add_header('User-Agent', user_agent)
-    page = urllib2.urlopen(r)
+    page = urllib2.urlopen(r, timeout=10)
     htmltest = page.read()
     return htmltest
 
@@ -31,25 +31,27 @@ def getGaoQing(name):
         conn = MySQLdb.connect(host='172.27.2.26', user='star', passwd='asd123', db='movie', port=3306, charset="utf8")
         cur = conn.cursor()
         mainHtml = getHtml('http://gaoqing.la/')
-        an = re.findall(r'href="(http://gaoqing\.la/.*?html)"', mainHtml)
+        mainsoup = BeautifulSoup(mainHtml)
+        an = re.findall(r'href="(http://gaoqing\.la/.*?html)"', str(mainsoup.find('ul', id='post_container')))
         s = set(an)
         for i in s:
             print i
             html = getHtml(i)
             soup = BeautifulSoup(html)
             title = str(soup.title.string).replace('中国高清网', '')
-            # print(title.split(' ')[1])
-            # print(tools.getRating(str(title.split(' ')[1])))
-            rating = tools.getRating(title.split(' ')[1])
-            post_content = (title, repr(soup.find('div', id="post_content")), i, rating)
-            cur.execute("replace into film(label,title,content,origin,rating) VALUES('gaoqing',%s,%s,%s,%s)", post_content)
+            douban = tools.getRating(title.split(' ')[1])
+            content = repr(soup.find('div', id="post_content"))
+            post_content = (title, content, i, douban, content, tools.getTime())
+            cur.execute("insert into film(label,title,content,origin,douban) VALUES('gaoqing',%s,%s,%s,%s) ON DUPLICATE KEY UPDATE content=%s, datetime=%s", post_content)
             time.sleep(5)
 
     except MySQLdb.Error, e:
         print "Mysql Error %d: %s" % (e.args[0], e.args[1])
+    except :
+        print("error")
     finally:
         cur.close()
         conn.commit()
         conn.close()
-        print('END')
 
+getGaoQing('sdf')

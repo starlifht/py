@@ -38,15 +38,22 @@ def getXiXi(name):
             # print(title.split(' ')[1])
             # print(tools.getRating(str(title.split(' ')[1])))
             rating = tools.getRating(newtitle.split(' ')[0])
-            imdbinfo = repr(soup.select('.imdbinfo')[0])
+
             soup.select('.cont_l_d_ul')[0].a['href'] = domain+str(soup.select('.cont_l_d_ul')[0].a['href'])
+            soup.select('.infoimg')[0].img['src']=domain+str(soup.select('.infoimg')[0].img['src'])
+            # print(soup.select('.infoimg')[0].img['src'])
             download = soup.select('.cont_l_d_ul')[0]
+            imdbinfo = repr(soup.select('.imdbinfo')[0])
             post_content = (newtitle.replace('-xixiHD', ''), imdbinfo+repr(download), domain+i,rating)
             cur.execute("replace into film(label,title,content,origin,rating) VALUES('xixi',%s,%s,%s,%s)", post_content)
             time.sleep(5)
 
     except MySQLdb.Error, e:
         print "Mysql Error %d: %s" % (e.args[0], e.args[1])
+    except urllib2.HTTPError, e:
+        print "urllib Error %d: %s" % (e.args[0], e.args[1])
+    except :
+        print("error")
     finally:
         cur.close()
         conn.commit()
